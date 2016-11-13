@@ -14,8 +14,16 @@
     <AnchorPane GridPane.columnIndex="0" GridPane.rowIndex="0">
       <children>
         <Button fx:id="btnVideo" layoutX="14.0" layoutY="873.0" mnemonicParsing="false" onMouseClicked="#click" text="Download Video" />
-        <Button fx:id="btnMp3" layoutX="1165.0" layoutY="873.0" mnemonicParsing="false" onMouseClicked="#click" text="Download MP3" />
-        <WebView fx:id="webView" layoutX="14.0" layoutY="14.0" prefHeight="859.0" prefWidth="1253.0" />
+        <Button fx:id="btnMp3" layoutX="136.0" layoutY="873.0" mnemonicParsing="false" onMouseClicked="#click" text="Download MP3" />
+        <WebView fx:id="webView" layoutX="14.0" layoutY="17.0" prefHeight="856.0" prefWidth="1253.0" />
+        <Label layoutX="247.0" layoutY="876.0" text="Directory" />
+        <Label layoutX="473.0" layoutY="876.0" text="youtube-dl" />
+        <Label layoutX="748.0" layoutY="876.0" text="ffmpeg" />
+        <TextField id="dirFIeld" fx:id="path" layoutX="300.0" layoutY="873.0" onKeyPressed="#commitText" prefWidth="165.0" />
+        <TextField id="ffmpegPath" fx:id="ffmpeg" layoutX="794.0" layoutY="873.0" onKeyPressed="#commitText" prefWidth="200.0" />
+        <TextField id="ytPath" fx:id="youtubeDl" layoutX="541.0" layoutY="873.0" onKeyPressed="#commitText" prefWidth="200.0" />
+        <TextField fx:id="viewUrl" layoutX="1042.0" layoutY="873.0" onKeyPressed="#commitText" prefWidth="200.0" />
+        <Label layoutX="1016.0" layoutY="876.0" text="url" />
       </children>
     </AnchorPane>
   </children>

@@ -6,8 +6,12 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,18 +25,21 @@ import java.util.logging.Logger;
 
 public class Controller implements Initializable {
     private final static Logger log = Logger.getAnonymousLogger();
-    private final static String path = "E:\\code\\bin";
-    private final static String ffmpeg = path + "\\ffmpeg.exe";
-    private final static String youtubeDl = path + "\\youtube-dl.exe";
 
     @FXML
     public WebView webView;
     @FXML
     public Button btnVideo, btnMp3;
+    @FXML
+    public TextField path = new TextField(), youtubeDl = new TextField(), ffmpeg = new TextField(), viewUrl = new TextField();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.webView.getEngine().load("https://www.youtube.com");
+        path.setText("E:\\code\\bin");
+        ffmpeg.setText(path.getText() + "\\ffmpeg.exe");
+        youtubeDl.setText(path.getText() + "\\youtube-dl.exe");
+        viewUrl.setText("https://www.youtube.com");
+        this.webView.getEngine().load(viewUrl.getText());
         this.webView.getEngine().getLoadWorker().stateProperty().addListener(
                 (ov, oldState, newState) -> {
                     log.info("newState = " + newState);
@@ -51,7 +58,7 @@ public class Controller implements Initializable {
         log.info("createVideoTitle " + url);
         String line;
         try {
-            ProcessBuilder p = (new ProcessBuilder()).command(Arrays.asList(youtubeDl, "--skip-download", "--get-title", url));
+            ProcessBuilder p = (new ProcessBuilder()).command(Arrays.asList(youtubeDl.getText(), "--skip-download", "--get-title", url));
             log.info("issuing command: " + String.join(" ", p.command()));
             Process process = p.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -66,13 +73,13 @@ public class Controller implements Initializable {
 
     private void downloadVideo(String url) throws IOException, InterruptedException {
         log.info("downloadVideo " + url);
-        ProcessWrappers.voidProc(Arrays.asList(youtubeDl, url), path);
+        ProcessWrappers.voidProc(Arrays.asList(youtubeDl.getText(), url), path.getText());
     }
 
     private void downloadMp3(String url) throws IOException, InterruptedException {
         log.info("downloadMp3 " + url);
         downloadVideo(url);
-        File directory = new File(path);
+        File directory = new File(path.getText());
         String title = createVideoTitle(url).replace("/", "_");
         log.info("video title: " + title);
         File[] temp = directory.listFiles(f -> f.getName().contains(title));
@@ -83,7 +90,7 @@ public class Controller implements Initializable {
 
         log.info("going to extract audio from " + temp[0].getName());
         ProcessWrappers.voidProc(Arrays.asList(
-                ffmpeg,
+                ffmpeg.getText(),
                 "-i",
                 String.format("\"%s\"", temp[0].getAbsolutePath()),
                 "-vn",
@@ -96,10 +103,20 @@ public class Controller implements Initializable {
                 "-f",
                 "mp3",
                 String.format("\"%s.mp3\"", title)
-        ), path);
+        ), path.getText());
         log.info("deleting " + temp[0].getName());
         if(!temp[0].delete())
             log.info("failed to delete " + temp[0].getName());
+    }
+
+    @FXML
+    public void commitText(KeyEvent event){
+        if(event.getCode() == KeyCode.ENTER){
+            if(event.getSource() == viewUrl){
+                log.info("explicitly changing the web address! " + viewUrl.getText());
+                webView.getEngine().load(viewUrl.getText());
+            }
+        }
     }
 
     @FXML
@@ -109,5 +126,7 @@ public class Controller implements Initializable {
             downloadMp3(retrieveUrl());
         else if(event.getSource() == btnVideo)
             downloadVideo(retrieveUrl());
+        else
+            log.info("unknown click! " + event.toString());
     }
 }
