@@ -1,6 +1,5 @@
 package org.hombro.utils;
 
-import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,8 +11,7 @@ import java.util.List;
  * Created by nicolas on 11/13/2016.
  */
 public class ProcessWrappers {
-    private static final Logger log = Logger.getLogger(ProcessWrappers.class);
-
+    private final static java.util.logging.Logger log = java.util.logging.Logger.getAnonymousLogger();
     public static void trackProcess(Process process) throws InterruptedException, IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
         BufferedReader err = new BufferedReader(new InputStreamReader(process.getErrorStream()));

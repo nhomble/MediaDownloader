@@ -13,8 +13,8 @@
   <children>
     <AnchorPane GridPane.columnIndex="0" GridPane.rowIndex="0">
       <children>
-        <Button fx:id="btnVideo" layoutX="14.0" layoutY="873.0" mnemonicParsing="false" onMouseClicked="#clickVideo" text="Download Video" />
-        <Button fx:id="btnMp3" layoutX="1165.0" layoutY="873.0" mnemonicParsing="false" onMouseClicked="#clickMusic" text="Download MP3" />
+        <Button fx:id="btnVideo" layoutX="14.0" layoutY="873.0" mnemonicParsing="false" onMouseClicked="#click" text="Download Video" />
+        <Button fx:id="btnMp3" layoutX="1165.0" layoutY="873.0" mnemonicParsing="false" onMouseClicked="#click" text="Download MP3" />
         <WebView fx:id="webView" layoutX="14.0" layoutY="14.0" prefHeight="859.0" prefWidth="1253.0" />
       </children>
     </AnchorPane>

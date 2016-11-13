@@ -1,6 +1,5 @@
 package org.hombro.utils;
 
-import com.sun.istack.internal.logging.Logger;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.event.Event;
@@ -18,9 +17,10 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 public class Controller implements Initializable {
-    private final static Logger log = Logger.getLogger(Controller.class);
+    private final static Logger log = Logger.getAnonymousLogger();
     private final static String path = "E:\\code\\bin";
     private final static String ffmpeg = path + "\\ffmpeg.exe";
     private final static String youtubeDl = path + "\\youtube-dl.exe";
@@ -103,14 +103,11 @@ public class Controller implements Initializable {
     }
 
     @FXML
-    public void clickVideo(Event event) throws IOException, InterruptedException {
-        log.info("clickVideo " + event.toString());
-        downloadVideo(retrieveUrl());
-    }
-
-    @FXML
-    public void clickMusic(Event event) throws IOException, InterruptedException {
-        log.info("clickMusic " + event.toString());
-        downloadMp3(retrieveUrl());
+    public void click(Event event) throws IOException, InterruptedException {
+        log.info("click " + event.toString());
+        if(event.getSource() == btnMp3)
+            downloadMp3(retrieveUrl());
+        else if(event.getSource() == btnVideo)
+            downloadVideo(retrieveUrl());
     }
 }
