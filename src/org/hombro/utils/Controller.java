@@ -35,9 +35,9 @@ public class Controller implements Initializable {
         this.webView.getEngine().load("https://www.youtube.com");
         this.webView.getEngine().getLoadWorker().stateProperty().addListener(
                 (ov, oldState, newState) -> {
-                    System.out.println("newState = " + newState);
+                    log.info("newState = " + newState);
                     if (newState == Worker.State.SUCCEEDED) {
-                        System.out.println(webView.getEngine().getLocation());
+                        log.info(webView.getEngine().getLocation());
                     }
                 });
     }
