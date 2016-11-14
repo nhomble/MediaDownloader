@@ -1,17 +1,18 @@
 package org.hombro.utils;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
-import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,9 +20,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
     private final static Logger log = Logger.getAnonymousLogger();
@@ -32,6 +33,8 @@ public class Controller implements Initializable {
     public Button btnVideo, btnMp3;
     @FXML
     public TextField path = new TextField(), youtubeDl = new TextField(), ffmpeg = new TextField(), viewUrl = new TextField();
+    @FXML
+    ListView<String> songList;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -47,6 +50,14 @@ public class Controller implements Initializable {
                         log.info(webView.getEngine().getLocation());
                     }
                 });
+        updateSongList();
+    }
+
+    private void updateSongList(){
+        File dir = new File(path.getText());
+        File[] files = dir.listFiles(f -> f.getName().endsWith(".mp3"));
+        ObservableList<String> input = FXCollections.observableList(Arrays.asList(files).stream().map(File::getName).collect(Collectors.toList()));
+        songList.setItems(input);
     }
 
     private String retrieveUrl() {
@@ -107,6 +118,7 @@ public class Controller implements Initializable {
         log.info("deleting " + temp[0].getName());
         if(!temp[0].delete())
             log.info("failed to delete " + temp[0].getName());
+        updateSongList();
     }
 
     @FXML
@@ -115,6 +127,10 @@ public class Controller implements Initializable {
             if(event.getSource() == viewUrl){
                 log.info("explicitly changing the web address! " + viewUrl.getText());
                 webView.getEngine().load(viewUrl.getText());
+            }
+            else if(event.getSource() == path){
+                log.info("path is now: " + path.getText());
+                updateSongList();
             }
         }
     }
