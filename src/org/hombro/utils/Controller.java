@@ -58,7 +58,7 @@ public class Controller implements Initializable {
         log.info("createVideoTitle " + url);
         String line;
         try {
-            ProcessBuilder p = (new ProcessBuilder()).command(Arrays.asList(youtubeDl.getText(), "--skip-download", "--get-title", url));
+            ProcessBuilder p = (new ProcessBuilder()).command(Arrays.asList(youtubeDl.getText(), "--skip-download", "--get-title", "--verbose", url));
             log.info("issuing command: " + String.join(" ", p.command()));
             Process process = p.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -73,7 +73,7 @@ public class Controller implements Initializable {
 
     private void downloadVideo(String url) throws IOException, InterruptedException {
         log.info("downloadVideo " + url);
-        ProcessWrappers.voidProc(Arrays.asList(youtubeDl.getText(), url), path.getText());
+        ProcessWrappers.voidProc(Arrays.asList(youtubeDl.getText(), "--verbose", url), path.getText());
     }
 
     private void downloadMp3(String url) throws IOException, InterruptedException {
