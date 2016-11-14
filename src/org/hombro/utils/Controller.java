@@ -91,7 +91,7 @@ public class Controller implements Initializable {
         log.info("downloadMp3 " + url);
         downloadVideo(url);
         File directory = new File(path.getText());
-        String title = createVideoTitle(url).replace("/", "_");
+        String title = createVideoTitle(url).replace("/", "_").replace("\"", "'");
         log.info("video title: " + title);
         File[] temp = directory.listFiles(f -> f.getName().contains(title));
         if (temp.length != 1) {
