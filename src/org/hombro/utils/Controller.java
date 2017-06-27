@@ -2,6 +2,7 @@ package org.hombro.utils;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -82,43 +83,62 @@ public class Controller implements Initializable {
         return line;
     }
 
-    private void downloadVideo(String url) throws IOException, InterruptedException {
+    private Thread downloadVideo(String url) throws IOException, InterruptedException {
         log.info("downloadVideo " + url);
-        ProcessWrappers.voidProc(Arrays.asList(youtubeDl.getText(), "--verbose", "--no-check-certificate", "--no-playlist", url), path.getText());
+        Task t = ProcessWrappers.voidProc(Arrays.asList(youtubeDl.getText(), "--verbose", "--no-check-certificate", "--no-playlist", url), path.getText());
+        Thread th = new Thread(t);
+        th.setDaemon(true);
+        th.start();
+        return th;
+    }
+
+    private boolean hackyNameMatches(String filename, String title){
+        String[] words = title.split(" ");
+        return Arrays.asList(words).stream().map(w->w.replace(":", "")).filter(w ->filename.toLowerCase().contains(w.toLowerCase())).count() >= .9 * words.length;
     }
 
     private void downloadMp3(String url) throws IOException, InterruptedException {
         log.info("downloadMp3 " + url);
-        downloadVideo(url);
-        File directory = new File(path.getText());
-        String title = createVideoTitle(url).replace("/", "_").replace("\"", "'");
-        log.info("video title: " + title);
-        File[] temp = directory.listFiles(f -> f.getName().contains(title));
-        if (temp.length != 1) {
-            log.info("got " + temp.length + " " + temp);
-            return;
-        }
+        Task t = new Task(){
 
-        log.info("going to extract audio from " + temp[0].getName());
-        ProcessWrappers.voidProc(Arrays.asList(
-                ffmpeg.getText(),
-                "-i",
-                String.format("\"%s\"", temp[0].getAbsolutePath()),
-                "-vn",
-                "-ac",
-                "2",
-                "-ar",
-                "44100",
-                "-ab",
-                "320k",
-                "-f",
-                "mp3",
-                String.format("\"%s.mp3\"", title)
-        ), path.getText());
-        log.info("deleting " + temp[0].getName());
-        if(!temp[0].delete())
-            log.info("failed to delete " + temp[0].getName());
-        updateSongList();
+            @Override
+            protected Object call() throws Exception {
+                downloadVideo(url).join();
+                log.info("video downloaded");
+                File directory = new File(path.getText());
+                String title = createVideoTitle(url).replace("/", "_").replace("\"", "'");
+                log.info("video title: " + title);
+                File[] temp = directory.listFiles(f ->hackyNameMatches(f.getName(), title));
+                if (temp.length != 1) {
+                    log.info("got " + temp.length + " " + temp);
+                    return null;
+                }
+
+                log.info("going to extract audio from " + temp[0].getName());
+                ProcessWrappers.voidProc(Arrays.asList(
+                        ffmpeg.getText(),
+                        "-i",
+                        String.format("\"%s\"", temp[0].getAbsolutePath()),
+                        "-vn",
+                        "-ac",
+                        "2",
+                        "-ar",
+                        "44100",
+                        "-ab",
+                        "320k",
+                        "-f",
+                        "mp3",
+                        String.format("\"%s.mp3\"", title)
+                ), path.getText()).run();
+                log.info("deleting " + temp[0].getName());
+                if(!temp[0].delete())
+                    log.info("failed to delete " + temp[0].getName());
+                return null;
+            }
+        };
+        Thread th = new Thread(t);
+        th.setDaemon(true);
+        th.start();
     }
 
     @FXML
@@ -138,6 +158,7 @@ public class Controller implements Initializable {
     @FXML
     public void click(Event event) throws IOException, InterruptedException {
         log.info("click " + event.toString());
+        updateSongList();
         if(event.getSource() == btnMp3)
             downloadMp3(retrieveUrl());
         else if(event.getSource() == btnVideo)

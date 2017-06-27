@@ -1,6 +1,8 @@
 package org.hombro.utils;
 
 
+import javafx.concurrent.Task;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -31,10 +33,17 @@ public class ProcessWrappers {
         in.close();
     }
 
-    public static void voidProc(List<String> args, String path) throws IOException, InterruptedException {
-        ProcessBuilder builder = (new ProcessBuilder()).directory(new File(path)).command(args);
-        Process p = builder.start();
-        log.info("issuing command: " + String.join(" ", builder.command()));
-        trackProcess(p);
+    public static Task voidProc(List<String> args, String path) throws IOException, InterruptedException {
+        return new Task(){
+
+            @Override
+            protected Object call() throws Exception {
+                ProcessBuilder builder = (new ProcessBuilder()).directory(new File(path)).command(args);
+                Process p = builder.start();
+                log.info("issuing command: " + String.join(" ", builder.command()));
+                trackProcess(p);
+                return null;
+            }
+        };
     }
 }
